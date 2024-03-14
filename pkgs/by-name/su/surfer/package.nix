@@ -73,11 +73,11 @@ in rustPlatform.buildRustPackage.override { inherit stdenv; } rec {
     pkg-config
     rustPlatform.bindgenHook
     python3
-    fontconfig
   ] ++ lib.optionals stdenv.isDarwin [ xcbuild ];
 
   buildInputs = [
     openssl
+    fontconfig
   ] ++ lib.optionals stdenv.isDarwin [
     darwin.apple_sdk.frameworks.Accelerate
     darwin.apple_sdk.frameworks.AppKit
