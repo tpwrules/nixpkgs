@@ -1,5 +1,5 @@
 { rustPlatform
-, stdenv
+, clangStdenv
 , lib
 , darwin
 , fetchFromGitLab
@@ -15,7 +15,10 @@
 , xcbuild
 }:
 
-rustPlatform.buildRustPackage rec {
+let
+  # needed to build skia without "unknown command line argument --target=..."
+  stdenv = clangStdenv;
+in rustPlatform.buildRustPackage.override { inherit stdenv; } rec {
   pname = "surfer";
   version = "unstable-2024-02-11";
 
