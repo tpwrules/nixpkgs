@@ -14,7 +14,6 @@
 , gn
 , ninja
 , xcbuild
-, removeReferencesTo
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -48,12 +47,7 @@ rustPlatform.buildRustPackage rec {
         rev = "m120-0.68.1";
         sha256 = "sha256-UtCHqKKuXGP699nm4kZN46Nhw+u3Wj1rQ9VUHiyUTlI=";
       };
-      # The externals for skia are taken from skia/DEPS with regex on deps = {
-      # section like
-      # find:
-      # "third_party/externals/(.*?)" +: "(.*)@(.*)",
-      # replace:
-      #   "\1": {\n    "url": "\2",\n    "rev": "\3",\n    "hash": ""\n  },
+      # The externals for skia are taken from skia/DEPS
       externals = linkFarm "skia-externals" (lib.mapAttrsToList
         (name: value: { inherit name; path = fetchgit value; })
         (lib.importJSON ./skia-externals.json));
@@ -71,7 +65,6 @@ rustPlatform.buildRustPackage rec {
   nativeBuildInputs = [
     rustPlatform.bindgenHook
     python3
-    removeReferencesTo
   ] ++ lib.optionals stdenv.isDarwin [ xcbuild ];
 
   buildInputs = [
@@ -110,10 +103,6 @@ rustPlatform.buildRustPackage rec {
     "--skip=tests::snapshot::toolbar_can_be_hidden"
   ];
 
-  postFixup = ''
-    # library skia embeds the path to its sources
-    remove-references-to -t "$SKIA_SOURCE_DIR" $out/bin/surfer
-  '';
-
+  # not true with the current version of skia but just in case
   disallowedReferences = [ SKIA_SOURCE_DIR ];
 }
