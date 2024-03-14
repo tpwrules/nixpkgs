@@ -13,6 +13,7 @@
 , gn
 , ninja
 , xcbuild
+, fontconfig
 }:
 
 let
@@ -72,6 +73,7 @@ in rustPlatform.buildRustPackage.override { inherit stdenv; } rec {
     pkg-config
     rustPlatform.bindgenHook
     python3
+    fontconfig
   ] ++ lib.optionals stdenv.isDarwin [ xcbuild ];
 
   buildInputs = [
