@@ -4,6 +4,7 @@
 , darwin
 , fetchFromGitLab
 , openssl
+, pkg-config
 
 # for skia-bindings, based on the neovide package
 , python3
@@ -65,6 +66,7 @@ rustPlatform.buildRustPackage rec {
   SKIA_NINJA_COMMAND = "${ninja}/bin/ninja";
 
   nativeBuildInputs = [
+    pkg-config
     rustPlatform.bindgenHook
     python3
   ] ++ lib.optionals stdenv.isDarwin [ xcbuild ];
