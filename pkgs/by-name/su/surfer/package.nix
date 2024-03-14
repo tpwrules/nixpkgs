@@ -37,27 +37,31 @@ rustPlatform.buildRustPackage rec {
     };
   };
 
-  SKIA_SOURCE_DIR =
-    let
-      repo = fetchFromGitHub {
-        owner = "rust-skia";
-        repo = "skia";
-        # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia,
-        # or the appropriate error message when SKIA_SOURCE_DIR is missing
-        rev = "m120-0.68.1";
-        sha256 = "sha256-UtCHqKKuXGP699nm4kZN46Nhw+u3Wj1rQ9VUHiyUTlI=";
-      };
-      # The externals for skia are taken from skia/DEPS
-      externals = linkFarm "skia-externals" (lib.mapAttrsToList
-        (name: value: { inherit name; path = fetchgit value; })
-        (lib.importJSON ./skia-externals.json));
-    in
-    runCommand "source" { } ''
-      cp -R ${repo} $out
-      chmod -R +w $out
-      ln -s ${externals} $out/third_party/externals
-    ''
-  ;
+  postUnpack = let # add skia source and its externals
+    skiaSource = fetchFromGitHub {
+      owner = "rust-skia";
+      repo = "skia";
+      # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia,
+      # or the appropriate error message when SKIA_SOURCE_DIR is missing
+      rev = "m120-0.68.1";
+      sha256 = "sha256-UtCHqKKuXGP699nm4kZN46Nhw+u3Wj1rQ9VUHiyUTlI=";
+    };
+
+    # The externals for skia are taken from skia/DEPS
+    linkExternalsCommand = builtins.concatStringsSep "\n" (lib.mapAttrsToList
+      (name: value: "ln -s ${fetchgit value} third_party/externals/${name}")
+      (lib.importJSON ./skia-externals.json));
+  in ''
+    export SKIA_SOURCE_DIR=$(pwd)/skia_source_dir
+
+    cp -r ${skiaSource} $SKIA_SOURCE_DIR
+    chmod -R +w $SKIA_SOURCE_DIR
+
+    pushd $SKIA_SOURCE_DIR
+    mkdir -p third_party/externals
+    ${linkExternalsCommand}
+    popd
+  '';
 
   SKIA_GN_COMMAND = "${gn}/bin/gn";
   SKIA_NINJA_COMMAND = "${ninja}/bin/ninja";
@@ -91,7 +95,8 @@ rustPlatform.buildRustPackage rec {
     NIX_LDFLAGS = "-l${stdenv.cc.libcxx.cxxabi.libName}";
   };
 
-  # tests fail on macOS due to platform specific rendering differences
+  # tests fail on macOS due to platform specific terminology differences:
+  # https://gitlab.com/surfer-project/surfer/-/issues/207
   checkFlags = lib.optional stdenv.isDarwin [
     "--skip=tests::snapshot::dialogs_work"
     "--skip=tests::snapshot::hierarchy_separate"
@@ -102,7 +107,4 @@ rustPlatform.buildRustPackage rec {
     "--skip=tests::snapshot::startup_screen_looks_fine"
     "--skip=tests::snapshot::toolbar_can_be_hidden"
   ];
-
-  # not true with the current version of skia but just in case
-  disallowedReferences = [ SKIA_SOURCE_DIR ];
 }
