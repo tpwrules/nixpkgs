@@ -74,20 +74,20 @@ rustPlatform.buildRustPackage rec {
   buildInputs = [
     openssl
   ] ++ lib.optionals stdenv.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
+    darwin.apple_sdk.frameworks.Accelerate
     darwin.apple_sdk.frameworks.AppKit
-    darwin.apple_sdk.frameworks.CoreFoundation
-    darwin.apple_sdk.frameworks.OpenGL
-    darwin.apple_sdk.frameworks.CoreServices
-    darwin.apple_sdk.frameworks.Foundation
-    darwin.apple_sdk.frameworks.QuartzCore
     darwin.apple_sdk.frameworks.ApplicationServices
-    darwin.apple_sdk.frameworks.CoreGraphics
-    darwin.apple_sdk.frameworks.CoreVideo
     darwin.apple_sdk.frameworks.Carbon
     darwin.apple_sdk.frameworks.CoreData
-    darwin.apple_sdk.frameworks.Accelerate
+    darwin.apple_sdk.frameworks.CoreFoundation
+    darwin.apple_sdk.frameworks.CoreGraphics
+    darwin.apple_sdk.frameworks.CoreServices
+    darwin.apple_sdk.frameworks.CoreVideo
+    darwin.apple_sdk.frameworks.Foundation
+    darwin.apple_sdk.frameworks.OpenGL
+    darwin.apple_sdk.frameworks.QuartzCore
+    darwin.apple_sdk.frameworks.Security
+    darwin.apple_sdk.frameworks.SystemConfiguration
   ];
 
   env = lib.optionalAttrs stdenv.isDarwin {
