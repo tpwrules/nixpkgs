@@ -9,8 +9,6 @@
 , python3
 , fetchgit
 , fetchFromGitHub
-, linkFarm
-, runCommand
 , gn
 , ninja
 , xcbuild
